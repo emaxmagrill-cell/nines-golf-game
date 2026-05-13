@@ -5,13 +5,18 @@
 @layer base {
   html {
     -webkit-tap-highlight-color: transparent;
+    background-color: #f0fdf4;
+  }
+
+  body {
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
   }
 
   button {
     touch-action: manipulation;
   }
 
-  /* Hide number input arrows */
   input[type='number'] {
     -moz-appearance: textfield;
   }
@@ -20,4 +25,12 @@
     -webkit-appearance: none;
     margin: 0;
   }
+}
+
+@layer components {
+  .pts-badge-5 { @apply bg-yellow-100 text-yellow-800 border-2 border-yellow-400; }
+  .pts-badge-4 { @apply bg-green-100 text-green-800 border-2 border-green-400; }
+  .pts-badge-3 { @apply bg-blue-100 text-blue-800 border-2 border-blue-400; }
+  .pts-badge-2 { @apply bg-slate-100 text-slate-600 border-2 border-slate-300; }
+  .pts-badge-1 { @apply bg-red-100 text-red-700 border-2 border-red-300; }
 }

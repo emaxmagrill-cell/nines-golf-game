@@ -2,7 +2,7 @@ import { useState } from 'react'
 import Setup from './components/Setup'
 import Scorecard from './components/Scorecard'
 import Summary from './components/Summary'
-import { DEFAULT_STROKE_INDEXES, calcCourseHandicap } from './utils/golf'
+import { DEFAULT_STROKE_INDEXES, calcCourseHandicap, calcPlayingHandicaps } from './utils/golf'
 
 const EMPTY_SETUP = {
   players: [
@@ -23,10 +23,22 @@ export default function App() {
 
   function startRound(setupData) {
     setSavedSetup(setupData)
-    const players = setupData.players.map(p => ({
+
+    // Step 1: raw USGA course handicaps
+    const courseHandicaps = setupData.players.map(p =>
+      calcCourseHandicap(p.handicapIndex, setupData.course.slope)
+    )
+
+    // Step 2: net playing handicaps (subtract the lowest CH so the scratch player
+    // gives the baseline and everyone else receives the difference)
+    const playingHandicaps = calcPlayingHandicaps(courseHandicaps)
+
+    const players = setupData.players.map((p, i) => ({
       ...p,
-      courseHandicap: calcCourseHandicap(p.handicapIndex, setupData.course.slope),
+      courseHandicap: courseHandicaps[i],   // shown in summary for reference
+      playingHandicap: playingHandicaps[i], // used for actual stroke allocation
     }))
+
     setGameState({
       players,
       course: setupData.course,
@@ -68,10 +80,7 @@ export default function App() {
     setScreen('setup')
   }
 
-  if (screen === 'setup') {
-    return <Setup initialSetup={savedSetup} onStart={startRound} />
-  }
-
+  if (screen === 'setup') return <Setup initialSetup={savedSetup} onStart={startRound} />
   if (screen === 'scorecard') {
     return (
       <Scorecard
@@ -83,8 +92,5 @@ export default function App() {
       />
     )
   }
-
-  if (screen === 'summary') {
-    return <Summary gameState={gameState} onNewRound={resetGame} />
-  }
+  if (screen === 'summary') return <Summary gameState={gameState} onNewRound={resetGame} />
 }
